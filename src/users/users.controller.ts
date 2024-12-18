@@ -2,16 +2,15 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
   Post,
-  Put,
+  Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { NotEmptyPipe } from 'src/util/pipes/not-empty.pipe';
 
 @Controller('/user')
 @ApiTags('User')
@@ -37,5 +36,11 @@ export class UsersController {
   @MessagePattern('findAllUsers')
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get("get-user")
+  @MessagePattern('get-user')
+  getUserInfo(@Query('emailId', NotEmptyPipe) emailId: string) {
+    return this.usersService.getUserInfo(emailId);
   }
 }

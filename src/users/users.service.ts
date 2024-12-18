@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersEntity } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -42,5 +42,16 @@ export class UsersService {
       createdAt: user.createdAt.getTime(),
       email: user.email,
     }));
+  }
+
+  async getUserInfo(emailId: string): Promise<UserInfoDto>{
+    const user = await this.userRepository.findOne({ where: {email:emailId} });
+    if(!user){
+      throw new NotFoundException(`User with EmailId:${emailId} is not available`)
+    }
+    return new UserInfoDto({
+      email: user.email,
+      hashPwd: user.password
+    })
   }
 }
