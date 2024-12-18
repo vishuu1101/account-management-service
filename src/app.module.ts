@@ -9,12 +9,12 @@ import { UsersEntity } from './users/entities/users.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'dpg-cth7n51opnds73b00b2g-a',
       port: 5432,
-      password: 'postgres',
-      username: 'postgres',
+      password: 'Xh40iyQNs5WDBYYPIuL44BEaGGNMlAIh',
+      username: 'postgress',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      database: 'postgres',
+      database: 'postgress_1g7m',
       synchronize: true,
       logging: true,
     }), 
