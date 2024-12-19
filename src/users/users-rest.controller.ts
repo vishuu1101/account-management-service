@@ -37,4 +37,9 @@ export class UsersRestController {
   create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
+
+  @Get('getAllUsers')
+  findAll() {
+    return this.usersService.findAll();
+  }
 }
