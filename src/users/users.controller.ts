@@ -10,7 +10,6 @@ export class UsersMicroserviceController {
 
   @MessagePattern({ cmd: 'getUserInfo' })
   getUserInfo(emailId: string): Promise<UserInfoDto> {
-    console.log('In UsersMicroserviceController');
     return this.usersService.getUserInfo(emailId);
   }
 

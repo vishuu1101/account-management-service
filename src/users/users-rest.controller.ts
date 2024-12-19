@@ -11,6 +11,8 @@ import { UsersService } from './users.service';
 import { NotEmptyPipe } from './util/pipes/not-empty.pipe';
 import { ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserRequestDto } from './dto/update-user-request.dto';
+import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 
 @Controller('users')
 export class UsersRestController {
@@ -20,7 +22,6 @@ export class UsersRestController {
   getUserInfoRest(
     @Query('email', NotEmptyPipe) emailId: string,
   ): Promise<UserInfoDto> {
-    console.log('In UsersMicroserviceController');
     return this.usersService.getUserInfo(emailId);
   }
 
@@ -41,5 +42,16 @@ export class UsersRestController {
   @Get('getAllUsers')
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Post('updateUser')
+  @ApiBody({
+    type: UpdateUserRequestDto,
+    description: 'Json structure for user object',
+  })
+  async updateUser(
+    @Body() updateUserDto: UpdateUserRequestDto,
+  ): Promise<UpdateUserResponseDto> {
+    return await this.usersService.updateUser(updateUserDto);
   }
 }

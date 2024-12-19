@@ -9,6 +9,8 @@ import { UsersEntity } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserRequestDto } from './dto/update-user-request.dto';
+import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -18,14 +20,7 @@ export class UsersService {
   ) {}
 
   async getUserInfo(emailId: string): Promise<UserInfoDto> {
-    const user = await this.userRepository.findOne({
-      where: { email: emailId },
-    });
-    if (!user) {
-      throw new NotFoundException(
-        `User with EmailId:${emailId} is not available`,
-      );
-    }
+    const user = await this.isValidUser(emailId);
     return new UserInfoDto({
       id: user.id,
       firstName: user.firstName,
@@ -74,5 +69,34 @@ export class UsersService {
           email: user.email,
         }),
     );
+  }
+
+  async updateUser(
+    updateUserRequestDto: UpdateUserRequestDto,
+  ): Promise<UpdateUserResponseDto> {
+    const user = await this.isValidUser(updateUserRequestDto.email);
+    user.firstName = updateUserRequestDto.firstName;
+    user.lastName = updateUserRequestDto.lastName;
+
+    const dbUser = await this.userRepository.save(user);
+    return new UpdateUserResponseDto({
+      id: dbUser.id,
+      firstName: dbUser.firstName,
+      lastName: dbUser.lastName,
+      email: dbUser.email,
+    });
+  }
+
+  async isValidUser(email: string): Promise<UsersEntity> {
+    const user = await this.userRepository.findOne({
+      where: { email: email },
+    });
+    if (!user) {
+      throw new NotFoundException(
+        `User with EmailId:${email} is not available`,
+      );
+    } else {
+      return user;
+    }
   }
 }
