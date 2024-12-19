@@ -27,6 +27,9 @@ export class UsersService {
       );
     }
     return new UserInfoDto({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       hashPwd: user.password,
     });
@@ -44,6 +47,8 @@ export class UsersService {
 
     const newUser = new UsersEntity();
     newUser.email = createUserDto.email;
+    newUser.firstName = createUserDto.firstName;
+    newUser.lastName = createUserDto.lastName;
 
     //hash user password before saving to DB
     const hashedPwd = bcrypt.hashSync(createUserDto.password, 10);
