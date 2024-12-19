@@ -1,46 +1,26 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  ValidationPipe,
-} from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Body, Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { MessagePattern } from '@nestjs/microservices';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { NotEmptyPipe } from 'src/util/pipes/not-empty.pipe';
+import { UserInfoDto } from './dto/user-info.dto';
 
-@Controller('/user')
-@ApiTags('User')
-export class UsersController {
+@Controller()
+export class UsersMicroserviceController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @MessagePattern()
-  @ApiResponse({
-    status: 201,
-    description: 'User record has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiBody({
-    type: CreateUserDto,
-    description: 'Json structure for user object',
-  })
-  create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+  @MessagePattern({ cmd: 'getUserInfo' })
+  getUserInfo(emailId: string): Promise<UserInfoDto> {
+    console.log('In UsersMicroserviceController');
+    return this.usersService.getUserInfo(emailId);
+  }
+
+  @MessagePattern({ cmd: 'createUser' })
+  create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @Get('getAllUsers')
   @MessagePattern('findAllUsers')
   findAll() {
     return this.usersService.findAll();
-  }
-
-  @Get("get-user")
-  @MessagePattern('get-user')
-  getUserInfo(@Query('emailId', NotEmptyPipe) emailId: string) {
-    return this.usersService.getUserInfo(emailId);
   }
 }

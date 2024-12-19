@@ -1,21 +1,45 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserInfoDto } from './dto/user-info.dto';
 import { UsersEntity } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserInfoDto } from './dto/user-info.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(UsersEntity) private readonly userRepository: Repository<UsersEntity>,) {
+  constructor(
+    @InjectRepository(UsersEntity)
+    private readonly userRepository: Repository<UsersEntity>,
+  ) {}
+
+  async getUserInfo(emailId: string): Promise<UserInfoDto> {
+    const user = await this.userRepository.findOne({
+      where: { email: emailId },
+    });
+    if (!user) {
+      throw new NotFoundException(
+        `User with EmailId:${emailId} is not available`,
+      );
     }
+    return new UserInfoDto({
+      email: user.email,
+      hashPwd: user.password,
+    });
+  }
 
   async create(createUserDto: CreateUserDto) {
-
-    const existingUser = await this.userRepository.findOne({ where: { email: createUserDto.email } });
-    if(existingUser){
-      throw new BadRequestException(`User already registerd with EmailId:${createUserDto.email}`)
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+    if (existingUser) {
+      throw new BadRequestException(
+        `User already registerd with EmailId:${createUserDto.email}`,
+      );
     }
 
     const newUser = new UsersEntity();
@@ -34,24 +58,16 @@ export class UsersService {
     });
   }
 
-  async findAll(): Promise<UserInfoDto[]>{
+  async findAll(): Promise<UserInfoDto[]> {
     const users = await this.userRepository.find();
     // Map the data to UserDto
-    return users.map(user => new UserInfoDto({
-      id: user.id,
-      createdAt: user.createdAt.getTime(),
-      email: user.email,
-    }));
-  }
-
-  async getUserInfo(emailId: string): Promise<UserInfoDto>{
-    const user = await this.userRepository.findOne({ where: {email:emailId} });
-    if(!user){
-      throw new NotFoundException(`User with EmailId:${emailId} is not available`)
-    }
-    return new UserInfoDto({
-      email: user.email,
-      hashPwd: user.password
-    })
+    return users.map(
+      (user) =>
+        new UserInfoDto({
+          id: user.id,
+          createdAt: user.createdAt.getTime(),
+          email: user.email,
+        }),
+    );
   }
 }
