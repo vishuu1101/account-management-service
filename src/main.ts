@@ -19,7 +19,6 @@ async function bootstrap() {
     .setTitle('Accounts')
     .setDescription('Accounts API - User Management Module')
     .setVersion('1.0')
-    .addTag('account')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('account', app, documentFactory);
