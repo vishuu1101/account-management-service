@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { UserInfoDto } from './dto/user-info.dto';
 import { UsersService } from './users.service';
-import { NotEmptyPipe } from './util/pipes/not-empty.pipe';
+import { NotEmptyPipe } from '../../util/pipes/not-empty.pipe';
 import { ApiResponse, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserRequestDto } from './dto/update-user-request.dto';

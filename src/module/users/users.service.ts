@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserInfoDto } from './dto/user-info.dto';
-import { UsersEntity } from './entities/users.entity';
+import { User } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -15,8 +15,8 @@ import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UsersEntity)
-    private readonly userRepository: Repository<UsersEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async getUserInfo(emailId: string): Promise<UserInfoDto> {
@@ -40,20 +40,15 @@ export class UsersService {
       );
     }
 
-    const newUser = new UsersEntity();
-    newUser.email = createUserDto.email;
-    newUser.firstName = createUserDto.firstName;
-    newUser.lastName = createUserDto.lastName;
-
     //hash user password before saving to DB
     const hashedPwd = bcrypt.hashSync(createUserDto.password, 10);
 
-    newUser.password = hashedPwd;
-    const user = this.userRepository.create(newUser);
-    const dbUser = await this.userRepository.save(user);
+    const dbUser = await this.userRepository.save(
+      this.userRepository.create({ ...createUserDto, password: hashedPwd }),
+    );
     return new UserInfoDto({
       id: dbUser.id,
-      createdAt: dbUser.createdAt.getTime(),
+      createdAt: dbUser.createdDate.getTime(),
       email: dbUser.email,
     });
   }
@@ -65,7 +60,7 @@ export class UsersService {
       (user) =>
         new UserInfoDto({
           id: user.id,
-          createdAt: user.createdAt.getTime(),
+          createdAt: user.createdDate.getTime(),
           email: user.email,
         }),
     );
@@ -87,7 +82,7 @@ export class UsersService {
     });
   }
 
-  async isValidUser(email: string): Promise<UsersEntity> {
+  async isValidUser(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email: email },
     });
