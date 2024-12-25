@@ -6,18 +6,18 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 import { User } from './entities/users.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserRequestDto } from './dto/update-user-request.dto';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
+import { ListUserRequestDTO } from './dto/list-user-request.dto';
+import { ListUserResponseDTO } from './dto/list-user-response.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserRepository } from './repository/user.repository';
+import { UserBasicInfoDTO } from './dto/user-basic-info.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async getUserInfo(emailId: string): Promise<UserInfoDto> {
     const user = await this.isValidUser(emailId);
@@ -31,9 +31,9 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email },
-    });
+    const existingUser = await this.userRepository.findByEmail(
+      createUserDto.email,
+    );
     if (existingUser) {
       throw new BadRequestException(
         `User already registerd with EmailId:${createUserDto.email}`,
@@ -43,27 +43,15 @@ export class UsersService {
     //hash user password before saving to DB
     const hashedPwd = bcrypt.hashSync(createUserDto.password, 10);
 
-    const dbUser = await this.userRepository.save(
-      this.userRepository.create({ ...createUserDto, password: hashedPwd }),
+    const { id, createdDate, email } = await this.userRepository.saveUser(
+      createUserDto,
+      hashedPwd,
     );
     return new UserInfoDto({
-      id: dbUser.id,
-      createdAt: dbUser.createdDate.getTime(),
-      email: dbUser.email,
+      id,
+      createdAt: createdDate.getTime(),
+      email,
     });
-  }
-
-  async findAll(): Promise<UserInfoDto[]> {
-    const users = await this.userRepository.find();
-    // Map the data to UserDto
-    return users.map(
-      (user) =>
-        new UserInfoDto({
-          id: user.id,
-          createdAt: user.createdDate.getTime(),
-          email: user.email,
-        }),
-    );
   }
 
   async updateUser(
@@ -83,9 +71,7 @@ export class UsersService {
   }
 
   async isValidUser(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { email: email },
-    });
+    const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new NotFoundException(
         `User with EmailId:${email} is not available`,
@@ -93,5 +79,28 @@ export class UsersService {
     } else {
       return user;
     }
+  }
+
+  async getAllUsersWithSearchCriteria(
+    requestDTO: ListUserRequestDTO,
+  ): Promise<ListUserResponseDTO> {
+    const skipCount = (requestDTO.page - 1) * requestDTO.limit;
+    const [entities, totalCount] = await this.userRepository.list(
+      {
+        name: requestDTO.name,
+        sortOrder: requestDTO.sortOrder,
+        sortColumn: requestDTO.sortColumn,
+      },
+      requestDTO.limit,
+      skipCount,
+    );
+    return plainToInstance(ListUserResponseDTO, {
+      userList: plainToInstance(UserBasicInfoDTO, entities, {
+        excludeExtraneousValues: true,
+      }),
+      totalCount: totalCount,
+      page: requestDTO.page,
+      limit: requestDTO.limit,
+    });
   }
 }

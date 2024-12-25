@@ -7,6 +7,7 @@ import { CreateRoleResponseDTO } from './dto/create-role-response.dto';
 import { RoleInfoResponseDTO } from './dto/role-info-response.dto';
 import { ListRoleRequestDTO } from './dto/list-role-request.dto';
 import { ListRoleResponseDTO } from './dto/list-role-response.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('/role')
 export class RoleController {
@@ -15,6 +16,7 @@ export class RoleController {
     private responseUtil: ResponseUtil,
   ) {}
 
+  @ApiBody({ type: CreateRoleRequestDTO })
   @Post()
   async create(
     @Body() request: CreateRoleRequestDTO,
@@ -35,7 +37,6 @@ export class RoleController {
   async getRoleList(
     @Query() requestDTO: ListRoleRequestDTO,
   ): Promise<ResponseDTO<ListRoleResponseDTO>> {
-    console.log(requestDTO.limit);
     const responseDTO =
       await this.roleService.getAllRolesWithSearchCriteria(requestDTO);
     return this.responseUtil.successResponse(0, responseDTO);

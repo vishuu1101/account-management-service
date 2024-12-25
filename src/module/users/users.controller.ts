@@ -17,9 +17,4 @@ export class UsersMicroserviceController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
-
-  @MessagePattern('findAllUsers')
-  findAll() {
-    return this.usersService.findAll();
-  }
 }

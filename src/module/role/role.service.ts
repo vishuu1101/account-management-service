@@ -39,7 +39,6 @@ export class RoleService {
     const rolePermissionsFromDB =
       await this.rolePermissionRepository.saveAll(rolePermissions);
     roleFromDB.rolePermissions = rolePermissionsFromDB;
-    console.log(rolePermissionsFromDB.length);
     return plainToInstance(CreateRoleResponseDTO, roleFromDB, {
       excludeExtraneousValues: true,
     });
@@ -83,7 +82,7 @@ export class RoleService {
       skipCount,
     );
     return plainToInstance(ListRoleResponseDTO, {
-      permissionList: plainToInstance(RoleDTO, entities, {
+      roleList: plainToInstance(RoleDTO, entities, {
         excludeExtraneousValues: true,
       }),
       totalCount: totalCount,

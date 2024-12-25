@@ -46,8 +46,6 @@ export class RoleRepository {
     }
 
     queryBuilder.orderBy(`role.${filters.sortColumn}`, filters.sortOrder);
-
-    console.log(queryBuilder.getQuery());
     queryBuilder.offset(skipCount);
     queryBuilder.limit(maxResultCount);
     return queryBuilder.getManyAndCount();

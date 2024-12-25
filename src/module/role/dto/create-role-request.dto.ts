@@ -1,3 +1,4 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   ArrayNotEmpty,
@@ -19,9 +20,10 @@ export class CreateRoleRequestDTO {
   @IsNumber({}, { each: true })
   permissionIds: number[];
 
-  @Exclude()
+  @ApiHideProperty()
   userList: User[] = [];
 
   @Exclude()
+  @ApiHideProperty()
   permissions?: Permission[];
 }
