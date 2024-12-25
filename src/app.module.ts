@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PermissionModule } from './module/permission/permission.module';
 import { ResponseUtil } from './util/response.util';
+import { RoleModule } from './module/role/role.module';
 
 @Module({
   imports: [
@@ -22,12 +23,12 @@ import { ResponseUtil } from './util/response.util';
         username: configService.get<string>('DB_USERNAME'),
         entities: [__dirname + '/**/*.entity.{ts,js}'],
         database: configService.get<string>('DB_DATABASE'),
-        synchronize: true,
         logging: true,
       }),
     }),
     UsersModule,
     PermissionModule,
+    RoleModule,
   ],
   providers: [ResponseUtil],
   exports: [ResponseUtil],

@@ -1,7 +1,8 @@
 import { Permission } from '../entities/permission.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { CreatePermissionRequestDTO } from '../dto/create-permission-request.dto';
 
 export class PermissionRepository {
   constructor(
@@ -9,7 +10,9 @@ export class PermissionRepository {
     private readonly repository: Repository<Permission>,
   ) {}
 
-  async createPermission(permission: Partial<Permission>): Promise<Permission> {
+  async createPermission(
+    permission: Partial<CreatePermissionRequestDTO>,
+  ): Promise<Permission> {
     const existingPermission = await this.repository.findOne({
       where: { name: permission.name },
     });
@@ -61,5 +64,12 @@ export class PermissionRepository {
     }
 
     return permission;
+  }
+
+  async getPermissionsByIds(ids: number[]) {
+    const permissions = await this.repository.find({
+      where: { id: In(ids) },
+    });
+    return permissions;
   }
 }

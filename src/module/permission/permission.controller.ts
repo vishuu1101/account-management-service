@@ -23,7 +23,7 @@ export class PermissionController {
     return this.responseUtil.successResponse(0, permissionResponseDTO);
   }
 
-  @Get(':id')
+  @Get(':id/info')
   async getPermissionInfo(
     @Param('id') id: number,
   ): Promise<ResponseDTO<PermissionInfoResponseDTO>> {
@@ -31,7 +31,7 @@ export class PermissionController {
     return this.responseUtil.successResponse(0, responseDTO);
   }
 
-  @Get()
+  @Get('getAllPermissions')
   async getPermissionList(
     @Query() requestDTO: ListPermissionRequestDTO,
   ): Promise<ResponseDTO<ListPermissionResponseDTO>> {

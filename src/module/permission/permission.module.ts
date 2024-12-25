@@ -10,5 +10,6 @@ import { ResponseUtil } from 'src/util/response.util';
   imports: [TypeOrmModule.forFeature([Permission])],
   controllers: [PermissionController],
   providers: [PermissionRepository, PermissionService, ResponseUtil],
+  exports: [PermissionRepository],
 })
 export class PermissionModule {}
