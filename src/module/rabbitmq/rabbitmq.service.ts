@@ -23,7 +23,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private async connect() {
     try {
       this.connection = await amqplib.connect(this.RABBITMQ_URL);
-      console;
       this.channel = await this.connection.createChannel();
       await this.channel.assertExchange(
         this.EXCHANGE_NAME,
