@@ -7,7 +7,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private connection: amqplib.Connection;
   private channel: amqplib.Channel;
 
-  private readonly RABBITMQ_URL = this.configService.get('RABBITMQ_URL');
+  private readonly RABBITMQ_HOST=this.configService.get('RABBITMQ_HOST');
+  private readonly RABBITMQ_USERNAME=this.configService.get('RABBITMQ_USERNAME');
+  private readonly RABBITMQ_PASSWORD=this.configService.get('RABBITMQ_PASSWORD');
+  private readonly RABBITMQ_PORT = this.configService.get('RABBITMQ_PORT');
+  private readonly RABBITMQ_URL = `amqp://${this.RABBITMQ_USERNAME}:${this.RABBITMQ_PASSWORD}@${this.RABBITMQ_HOST}:${this.RABBITMQ_PORT}`;
   private readonly EXCHANGE_NAME = this.configService.get('EXCHANGE_NAME');
   private readonly EXCHANGE_TYPE = 'direct';
 
