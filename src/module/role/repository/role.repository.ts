@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Role } from '../entities/role.entity';
@@ -65,5 +65,12 @@ export class RoleRepository {
     }
 
     return role;
+  }
+
+  async getRolesByIds(roleIds: number[]) {
+    const roles = await this.roleRepository.find({
+      where: { id: In(roleIds) },
+    });
+    return roles;
   }
 }

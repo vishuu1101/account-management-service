@@ -1,7 +1,6 @@
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from '../dto/create-user.dto';
 
 export class UserRepository {
   constructor(
@@ -11,17 +10,11 @@ export class UserRepository {
 
   async findByEmail(email: string) {
     return await this.userRepository.findOne({
-      where: { email: email },
+      where: { email: ILike(email) },
     });
   }
 
-  async saveUser(createUserDto: CreateUserDto, hashedPwd: string) {
-    return await this.userRepository.save(
-      this.userRepository.create({ ...createUserDto, password: hashedPwd }),
-    );
-  }
-
-  async save(user: User) {
+  async saveOrupdate(user: User) {
     return await this.userRepository.save(user);
   }
 

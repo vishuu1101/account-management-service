@@ -6,9 +6,10 @@ import { User } from './entities/users.entity';
 import { UsersRestController } from './users-rest.controller';
 import { UserRepository } from './repository/user.repository';
 import { ResponseUtil } from 'src/util/response.util';
+import { RoleModule } from '../role/role.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User]), RoleModule],
   providers: [UsersService, UserRepository, ResponseUtil],
   controllers: [UsersMicroserviceController, UsersRestController],
 })

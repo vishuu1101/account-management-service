@@ -5,9 +5,12 @@ import {
   MinLength,
   IsStrongPassword,
   IsString,
+  ArrayNotEmpty,
+  IsArray,
+  IsNumber,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateUserRequestDTO {
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -25,4 +28,9 @@ export class CreateUserDto {
   @MaxLength(20)
   @IsStrongPassword()
   password: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  roleIds: number[];
 }

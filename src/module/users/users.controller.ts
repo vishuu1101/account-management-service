@@ -1,7 +1,7 @@
 import { Body, Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern } from '@nestjs/microservices';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserRequestDTO } from './dto/create-user-request.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 
 @Controller()
@@ -14,7 +14,7 @@ export class UsersMicroserviceController {
   }
 
   @MessagePattern({ cmd: 'createUser' })
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserRequestDTO) {
     return this.usersService.create(createUserDto);
   }
 }

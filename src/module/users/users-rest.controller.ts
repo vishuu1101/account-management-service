@@ -10,7 +10,7 @@ import { UserInfoDto } from './dto/user-info.dto';
 import { UsersService } from './users.service';
 import { NotEmptyPipe } from '../../util/pipes/not-empty.pipe';
 import { ApiResponse, ApiBody, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserRequestDTO } from './dto/create-user-request.dto';
 import { UpdateUserRequestDto } from './dto/update-user-request.dto';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 import { ListUserRequestDTO } from './dto/list-user-request.dto';
@@ -27,10 +27,11 @@ export class UsersRestController {
   ) {}
 
   @Get('getByEmail')
-  getUserInfoRest(
+  async getUserInfoRest(
     @Query('email', NotEmptyPipe) emailId: string,
-  ): Promise<UserInfoDto> {
-    return this.usersService.getUserInfo(emailId);
+  ): Promise<ResponseDTO<UserInfoDto>> {
+    const response = await this.usersService.getUserInfo(emailId);
+    return this.responseUtil.successResponse(0, response);
   }
 
   @Post()
@@ -40,11 +41,12 @@ export class UsersRestController {
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiBody({
-    type: CreateUserDto,
+    type: CreateUserRequestDTO,
     description: 'Json structure for user object',
   })
-  create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body(ValidationPipe) createUserDto: CreateUserRequestDTO) {
+    const response = await this.usersService.create(createUserDto);
+    return this.responseUtil.successResponse(0, response);
   }
 
   @Get('/getAllUsers')
@@ -63,7 +65,8 @@ export class UsersRestController {
   })
   async updateUser(
     @Body() updateUserDto: UpdateUserRequestDto,
-  ): Promise<UpdateUserResponseDto> {
-    return await this.usersService.updateUser(updateUserDto);
+  ): Promise<ResponseDTO<UpdateUserResponseDto>> {
+    const response = await this.usersService.updateUser(updateUserDto);
+    return this.responseUtil.successResponse(0, response);
   }
 }

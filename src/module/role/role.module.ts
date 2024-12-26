@@ -18,5 +18,6 @@ import { RolePermission } from './entities/role-permission.entity';
     RolePermissionRepository,
     ResponseUtil,
   ],
+  exports: [RoleRepository],
 })
 export class RoleModule {}

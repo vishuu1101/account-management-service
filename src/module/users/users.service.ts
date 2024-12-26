@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserRequestDTO } from './dto/create-user-request.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 import { User } from './entities/users.entity';
 import * as bcrypt from 'bcrypt';
@@ -14,10 +14,16 @@ import { ListUserResponseDTO } from './dto/list-user-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserRepository } from './repository/user.repository';
 import { UserBasicInfoDTO } from './dto/user-basic-info.dto';
+import { RoleRepository } from '../role/repository/role.repository';
+import { UserRole } from './entities/user-role.entity';
+import { mapDtoToEntity } from '../../util/mapper/user.mapper';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly roleRepository: RoleRepository,
+  ) {}
 
   async getUserInfo(emailId: string): Promise<UserInfoDto> {
     const user = await this.isValidUser(emailId);
@@ -30,7 +36,7 @@ export class UsersService {
     });
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserRequestDTO) {
     const existingUser = await this.userRepository.findByEmail(
       createUserDto.email,
     );
@@ -40,13 +46,31 @@ export class UsersService {
       );
     }
 
+    //validate if all the roleIds are available in db
+    const roles = await this.roleRepository.getRolesByIds(
+      createUserDto.roleIds,
+    );
+    if (createUserDto.roleIds.length > (await roles).length) {
+      throw new BadRequestException(
+        `Invalid RolesIds were passed to create User`,
+      );
+    }
+
     //hash user password before saving to DB
     const hashedPwd = bcrypt.hashSync(createUserDto.password, 10);
 
-    const { id, createdDate, email } = await this.userRepository.saveUser(
-      createUserDto,
-      hashedPwd,
-    );
+    const userToSave = mapDtoToEntity(createUserDto);
+    userToSave.password = hashedPwd;
+    const userRoles = roles.map((roleFromDB) => {
+      const userRole = new UserRole();
+      userRole.user = userToSave;
+      userRole.role = roleFromDB;
+      return userRole;
+    });
+    userToSave.userRoles = userRoles;
+
+    const { id, createdDate, email } =
+      await this.userRepository.saveOrupdate(userToSave);
     return new UserInfoDto({
       id,
       createdAt: createdDate.getTime(),
@@ -61,7 +85,7 @@ export class UsersService {
     user.firstName = updateUserRequestDto.firstName;
     user.lastName = updateUserRequestDto.lastName;
 
-    const dbUser = await this.userRepository.save(user);
+    const dbUser = await this.userRepository.saveOrupdate(user);
     return new UpdateUserResponseDto({
       id: dbUser.id,
       firstName: dbUser.firstName,
