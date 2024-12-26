@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PermissionModule } from './module/permission/permission.module';
 import { ResponseUtil } from './util/response.util';
 import { RoleModule } from './module/role/role.module';
+import { RabbitMQModule } from './module/rabbitmq/rabbitmq.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RoleModule } from './module/role/role.module';
     UsersModule,
     PermissionModule,
     RoleModule,
+    RabbitMQModule,
   ],
   providers: [ResponseUtil],
   exports: [ResponseUtil],
