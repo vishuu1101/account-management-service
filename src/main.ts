@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { LoggingInterceptor } from './interceptor/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +16,13 @@ async function bootstrap() {
     },
   });
 
+  // enabling CORS for specific host's
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://tradeling-portal.vercel.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Accounts')
     .setDescription('Accounts API - User Management Module')
@@ -24,6 +32,7 @@ async function bootstrap() {
   SwaggerModule.setup('account', app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalInterceptors(new LoggingInterceptor());
   await app.startAllMicroservices();
   await app.listen(3000);
 }

@@ -23,7 +23,7 @@ import { RoleModule } from './module/role/role.module';
         username: configService.get<string>('DB_USERNAME'),
         entities: [__dirname + '/**/*.entity.{ts,js}'],
         database: configService.get<string>('DB_DATABASE'),
-        logging: true,
+        logging: false,
       }),
     }),
     UsersModule,
