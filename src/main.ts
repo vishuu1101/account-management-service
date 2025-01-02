@@ -4,6 +4,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from './interceptor/logging.interceptor';
+import { BadRequestExceptionFilter } from './filter/bad-request-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
+  app.useGlobalFilters(new BadRequestExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Accounts')

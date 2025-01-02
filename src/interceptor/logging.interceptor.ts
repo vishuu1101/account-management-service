@@ -20,9 +20,8 @@ export class LoggingInterceptor implements NestInterceptor {
     console.log(
       `Incoming Request: ${method} ${url} at ${new Date(startTime).toISOString()}`,
     );
-    const response = context.switchToHttp().getResponse();
     return next.handle().pipe(
-      tap((responseBody) => {
+      tap(() => {
         const endTime = Date.now();
         console.log(
           `Outgoing Response: ${method} ${url} at ${new Date(endTime).toISOString()} | Duration: ${
