@@ -30,7 +30,7 @@ export class PermissionRepository {
     );
   }
 
-  list(
+  async list(
     filters: { label?: string; sortColumn: string; sortOrder },
     maxResultCount: number = 10,
     skipCount: number = 0,
@@ -46,7 +46,12 @@ export class PermissionRepository {
     queryBuilder.orderBy(`permission.${filters.sortColumn}`, filters.sortOrder);
     queryBuilder.offset(skipCount);
     queryBuilder.limit(maxResultCount);
-    return queryBuilder.getManyAndCount();
+    const [entities] = await queryBuilder.getManyAndCount();
+    const transformedEntities = entities.map((item) => ({
+      ...item,
+      id: Number(item.id),
+    }));
+    return transformedEntities;
   }
 
   async getPermissionById(id: number) {
@@ -60,14 +65,18 @@ export class PermissionRepository {
         HttpStatus.BAD_REQUEST,
       );
     }
-
+    permission.id = Number(permission.id)
     return permission;
   }
 
   async getPermissionsByIds(ids: number[]) {
-    const permissions = await this.repository.find({
+    const entities = await this.repository.find({
       where: { id: In(ids) },
     });
-    return permissions;
+    const transformedEntities = entities.map((item) => ({
+      ...item,
+      id: Number(item.id),
+    }));
+    return transformedEntities;
   }
 }
