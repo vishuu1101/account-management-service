@@ -46,12 +46,12 @@ export class PermissionRepository {
     queryBuilder.orderBy(`permission.${filters.sortColumn}`, filters.sortOrder);
     queryBuilder.offset(skipCount);
     queryBuilder.limit(maxResultCount);
-    const [entities] = await queryBuilder.getManyAndCount();
+    const [entities, totalCount] = await queryBuilder.getManyAndCount();
     const transformedEntities = entities.map((item) => ({
       ...item,
       id: Number(item.id),
     }));
-    return transformedEntities;
+    return [transformedEntities, totalCount];
   }
 
   async getPermissionById(id: number) {
